@@ -75,6 +75,7 @@ import com.openerp.support.AppScope;
 import com.openerp.support.BaseFragment;
 import com.openerp.support.fragment.FragmentListener;
 import com.openerp.support.listview.OEListAdapter;
+import com.openerp.support.listview.OEListAdapter.SearchResultListener;
 import com.openerp.util.HTMLHelper;
 import com.openerp.util.OEDate;
 import com.openerp.util.StringHelper;
@@ -83,7 +84,8 @@ import com.openerp.util.drawer.DrawerListener;
 
 public class Message extends BaseFragment implements
 		OETouchListener.OnPullListener, OnItemLongClickListener,
-		OnItemClickListener, SwipeCallbacks, OnScrollListener, OnTouchListener {
+		OnItemClickListener, SwipeCallbacks, OnScrollListener, OnTouchListener,
+		SearchResultListener {
 
 	public static final String TAG = "com.openerp.addons.message.Message";
 
@@ -155,10 +157,14 @@ public class Message extends BaseFragment implements
 				if (mView == null)
 					mView = getActivity().getLayoutInflater().inflate(
 							getResource(), parent, false);
+				if (mListView.getVisibility() == View.GONE) {
+					mListView.setVisibility(View.VISIBLE);
+				}
 				mView = handleRowView(mView, position);
 				return mView;
 			}
 		};
+		mListViewAdapter.setOnSearchResultListener(this);
 		mListView.setAdapter(mListViewAdapter);
 		initData();
 		mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
@@ -1093,6 +1099,12 @@ public class Message extends BaseFragment implements
 			makeArchive(mRecentSwiped);
 		}
 		return false;
+	}
+
+	@Override
+	public void hasSearchResult(boolean hasResult) {
+		mView.findViewById(R.id.txvNoMatchFound).setVisibility(
+				(hasResult) ? View.GONE : View.VISIBLE);
 	}
 
 }

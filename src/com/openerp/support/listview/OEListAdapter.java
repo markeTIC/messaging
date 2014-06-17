@@ -35,6 +35,7 @@ public class OEListAdapter extends ArrayAdapter<Object> {
 	RowFilter mFilter = null;
 	int mResourceId = 0;
 	RowFilterTextListener mRowFilterTextListener = null;
+	SearchResultListener mSearchResultListener = null;
 
 	public OEListAdapter(Context context, int resource, List<Object> objects) {
 		super(context, resource, objects);
@@ -71,6 +72,7 @@ public class OEListAdapter extends ArrayAdapter<Object> {
 		mAllObjects.clear();
 		mAllObjects.addAll(objects);
 		notifyDataSetChanged();
+
 	}
 
 	class RowFilter extends Filter {
@@ -118,6 +120,13 @@ public class OEListAdapter extends ArrayAdapter<Object> {
 			clear();
 			mObjects = (List<Object>) results.values;
 			addAll(mObjects);
+			if (mSearchResultListener != null) {
+				if (results.count <= 0) {
+					mSearchResultListener.hasSearchResult(false);
+				} else {
+					mSearchResultListener.hasSearchResult(true);
+				}
+			}
 			notifyDataSetChanged();
 		}
 	}
@@ -126,8 +135,16 @@ public class OEListAdapter extends ArrayAdapter<Object> {
 		mRowFilterTextListener = listener;
 	}
 
+	public void setOnSearchResultListener(SearchResultListener listener) {
+		mSearchResultListener = listener;
+	}
+
 	public interface RowFilterTextListener {
 		public String filterCompareWith(Object object);
+	}
+
+	public interface SearchResultListener {
+		public void hasSearchResult(boolean hasResult);
 	}
 
 }

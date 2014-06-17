@@ -44,4 +44,16 @@
         android:smoothScrollbar="true" >
     </ListView>
 
+    <TextView
+        android:id="@+id/txvNoMatchFound"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|center_vertical"
+        android:background="#ebebeb"
+        android:gravity="center_horizontal"
+        android:text="@string/no_match_found"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:visibility="gone" >
+    </TextView>
+
 </LinearLayout>

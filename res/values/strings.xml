@@ -16,6 +16,7 @@ When you process messages in your inbox, you can mark some as todo. From this me
     <string name="message_no_group_message">No message in this group.</string>
     <string name="message_waiting_for_sync_to_start">Waiting for Sync to Start</string>
     <string name="message_your_message_will_appear_shortly">Your messages will appear shortly</string>
+    <string name="no_match_found">Sorry, No Match Found</string>
 
     <!-- Compose Note Fragment Strings -->
     <string name="title_activity_note_compose">Odoo Notes</string>

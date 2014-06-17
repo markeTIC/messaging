@@ -691,7 +691,6 @@ public class MainActivity extends FragmentActivity implements
 	private void loadFragment(DrawerItem item) {
 
 		Fragment fragment = (Fragment) item.getFragmentInstace();
-		;
 		if (item.getTagColor() != null
 				&& !fragment.getArguments().containsKey("tag_color")) {
 			Bundle tagcolor = fragment.getArguments();

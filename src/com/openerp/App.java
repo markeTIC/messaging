@@ -20,6 +20,9 @@ package com.openerp;
 
 import openerp.OpenERP;
 import android.app.Application;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 import com.openerp.auth.OpenERPAccountManager;
@@ -34,6 +37,21 @@ public class App extends Application {
 	public void onCreate() {
 		Log.d(TAG, "App->onCreate()");
 		super.onCreate();
+		if (checkNetwork())
+			createInstance();
+
+	}
+
+	private boolean checkNetwork() {
+		boolean isConnected = false;
+		ConnectivityManager conManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo nInfo = conManager.getActiveNetworkInfo();
+		if (nInfo.isConnectedOrConnecting())
+			return isConnected;
+		return isConnected;
+	}
+
+	private void createInstance() {
 		OEUser user = OEUser.current(getApplicationContext());
 		if (user != null) {
 			try {
@@ -52,7 +70,9 @@ public class App extends Application {
 
 	public OpenERP getOEInstance() {
 		Log.d(TAG, "App->getOEInstance()");
-		return mOEInstance;
+		if (checkNetwork())
+			return mOEInstance;
+		return null;
 	}
 
 	public void setOEInstance(OpenERP openERP) {

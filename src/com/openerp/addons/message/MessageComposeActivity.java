@@ -89,6 +89,7 @@ public class MessageComposeActivity extends Activity implements TokenListener,
 
 	OEDataRow mNoteObj = null;
 	OEHelper mOE = null;
+	OEDataRow user = null;
 
 	HashMap<String, OEDataRow> mSelectedPartners = new HashMap<String, OEDataRow>();
 
@@ -136,6 +137,8 @@ public class MessageComposeActivity extends Activity implements TokenListener,
 			initActionbar();
 			handleIntent();
 			initControls();
+			user = new ResPartnerDB(mContext).select(OEUser.current(mContext)
+					.getPartner_id());
 			checkForContact();
 		}
 	}
@@ -290,12 +293,16 @@ public class MessageComposeActivity extends Activity implements TokenListener,
 					.browseEach();
 			if (partners != null) {
 				for (OEDataRow partner : partners) {
-					mSelectedPartners.put("key_" + partner.getString("id"),
-							partner);
-					mPartnerTagsView.addObject(partner);
+					if (partner.getInt("id") != user.getInt("id")) {
+						mSelectedPartners.put("key_" + partner.getString("id"),
+								partner);
+						mPartnerTagsView.addObject(partner);
+					}
 				}
 			}
-			edtSubject.setText("Re: " + mMessageRow.getString("subject"));
+			String subject = mMessageRow.getString("subject");
+			edtSubject.setText("Re: "
+					+ ((subject.equals("false")) ? "" : subject));
 			edtBody.requestFocus();
 		}
 	}
@@ -347,8 +354,6 @@ public class MessageComposeActivity extends Activity implements TokenListener,
 			} else if (TextUtils.isEmpty(edtBody.getText())) {
 				edtBody.setError("Provide Message Body !");
 			} else {
-				Toast.makeText(this, "Sending message...", Toast.LENGTH_LONG)
-						.show();
 				SendMessage sendMessage = new SendMessage();
 				sendMessage.execute();
 				if (isQuickCompose)
@@ -393,17 +398,21 @@ public class MessageComposeActivity extends Activity implements TokenListener,
 					res_id = mNoteObj.getInt("id");
 				}
 				try {
-					OEDataRow user = new ResPartnerDB(mContext).select(OEUser
-							.current(mContext).getPartner_id());
+					// OEDataRow user = new ResPartnerDB(mContext).select(OEUser
+					// .current(mContext).getPartner_id());
 					OEArguments args = new OEArguments();
 
 					// Partners
 					JSONArray partners = new JSONArray();
 					List<Integer> partner_ids_list = new ArrayList<Integer>();
 					for (String key : mSelectedPartners.keySet()) {
-						partners.put(mSelectedPartners.get(key).getInt("id"));
-						partner_ids_list.add(mSelectedPartners.get(key).getInt(
-								"id"));
+						if (mSelectedPartners.get(key).getInt("id") != user
+								.getInt("id") || isReply != true) {
+							partners.put(mSelectedPartners.get(key)
+									.getInt("id"));
+							partner_ids_list.add(mSelectedPartners.get(key)
+									.getInt("id"));
+						}
 					}
 					JSONArray partner_ids = new JSONArray();
 					if (partners.length() > 0) {
@@ -498,13 +507,14 @@ public class MessageComposeActivity extends Activity implements TokenListener,
 						kwargs.put("parent_id", mParentMessageId);
 						kwargs.put("attachment_ids", new JSONArray(
 								attachmentIds));
-						if (partner_ids.length() > 0)
+						if (partner_ids.length() > 0) {
 							kwargs.put("partner_ids", new JSONArray("["
 									+ partner_ids.toString() + "]"));
-						else
+						} else {
 							kwargs.put("partner_ids", new JSONArray());
-						newMessageId = (Integer) mOE.call_kw(model, method,
-								args, null, kwargs);
+							newMessageId = (Integer) mOE.call_kw(model, method,
+									args, null, kwargs);
+						}
 						// Creating local entry
 						OEValues values = new OEValues();
 
@@ -531,7 +541,6 @@ public class MessageComposeActivity extends Activity implements TokenListener,
 						values.put("attachment_ids", attachment_Ids);
 						newMessageId = (int) mMessageDB.create(values);
 					}
-
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -546,6 +555,8 @@ public class MessageComposeActivity extends Activity implements TokenListener,
 				Toast.makeText(mContext, "No Connection", Toast.LENGTH_LONG)
 						.show();
 			} else {
+				Toast.makeText(mContext, "Sending message...", Toast.LENGTH_SHORT)
+				.show();
 				Toast.makeText(mContext, mToast, Toast.LENGTH_LONG).show();
 				Intent intent = new Intent();
 				intent.putExtra("new_message_id", newMessageId);
@@ -654,8 +665,8 @@ public class MessageComposeActivity extends Activity implements TokenListener,
 		OEDataRow row = (OEDataRow) token;
 		if (!isReply)
 			mSelectedPartners.remove("key_" + row.getString("id"));
-		else
-			mPartnerTagsView.addObject(token);
+		// else
+		// mPartnerTagsView.addObject(token);
 	}
 
 	@Override

@@ -222,8 +222,8 @@ public class MessageSyncService extends Service {
 							MainActivity.class);
 					mNotification.setResultIntent(mainActiivty, context);
 					mNotification.showNotification(context, affected_rows
-							+ " new messages", affected_rows
-							+ " new message received (OpneERP)", authority,
+							+ " Unread messages", affected_rows
+							+ " Unread messages received (OpneERP)", authority,
 							R.drawable.ic_odoo_o);
 				}
 				intent.putIntegerArrayListExtra("new_ids",

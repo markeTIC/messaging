@@ -11,6 +11,12 @@
         android:orientation="vertical"
         android:padding="5dp" >
 
+        <View
+            android:id="@+id/txvMsgStatus"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="@color/odoo_puple" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

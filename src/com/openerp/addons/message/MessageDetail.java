@@ -32,6 +32,9 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -71,7 +74,6 @@ public class MessageDetail extends BaseFragment implements OnClickListener {
 	public static final String TAg = "com.openerp.addons.message.MessageDetail";
 	private static final int MESSAGE_REPLY = 3;
 	View mView = null;
-
 	Integer mMessageId = null;
 	OEDataRow mMessageData = null;
 	ListView mMessageListView = null;
@@ -82,6 +84,7 @@ public class MessageDetail extends BaseFragment implements OnClickListener {
 	ReadUnreadOperation mReadUnreadOperation = null;
 	Integer[] mStarredDrawables = new Integer[] { R.drawable.ic_action_starred,
 			R.drawable.ic_action_unstarred };
+	View view = null;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -117,6 +120,7 @@ public class MessageDetail extends BaseFragment implements OnClickListener {
 					mView = getActivity().getLayoutInflater().inflate(
 							getResource(), parent, false);
 				mView = createListViewRow(mView, position);
+				view = mView;
 				return mView;
 			}
 		};
@@ -134,6 +138,7 @@ public class MessageDetail extends BaseFragment implements OnClickListener {
 		txvTime = (TextView) mView.findViewById(R.id.txvTime);
 		txvTo = (TextView) mView.findViewById(R.id.txvTo);
 		txvVoteNumber = (TextView) mView.findViewById(R.id.txvmessageVotenb);
+		View txvMsgStatus = (View) mView.findViewById(R.id.txvMsgStatus);
 		String author = row.getString("email_from");
 		String email = author;
 		OEDataRow author_id = null;
@@ -163,7 +168,12 @@ public class MessageDetail extends BaseFragment implements OnClickListener {
 			partnersName = TextUtils.join(", ",
 					partners.toArray(new String[partners.size()]));
 		txvTo.setText(partnersName);
-
+		if (mMessageData.getString("to_read").equals("false")) {
+			txvMsgStatus.setBackgroundColor(Color.GRAY);
+		} else {
+			txvMsgStatus.setBackgroundColor(getActivity().getResources()
+					.getColor(R.color.odoo_puple));
+		}
 		/* Handling vote control */
 		txvVoteNumber.setText(row.getString("vote_nb"));
 		int vote_nb = 0;
@@ -188,7 +198,17 @@ public class MessageDetail extends BaseFragment implements OnClickListener {
 
 			@Override
 			public void onClick(View v) {
-				handleVoteToggle(position, txvVoteNumber, row);
+				OEHelper mOE = null;
+				mOE = db().getOEInstance();
+				ConnectivityManager cm = (ConnectivityManager) getActivity()
+						.getSystemService(Context.CONNECTIVITY_SERVICE);
+				NetworkInfo in = cm.getActiveNetworkInfo();
+				if (mOE != null && in != null && in.isConnected()) {
+					handleVoteToggle(position, txvVoteNumber, row);
+				} else {
+					Toast.makeText(getActivity(), "No Connection",
+							Toast.LENGTH_SHORT).show();
+				}
 			}
 		});
 		WebView webView = (WebView) mView.findViewById(R.id.webViewMessageBody);
@@ -216,9 +236,19 @@ public class MessageDetail extends BaseFragment implements OnClickListener {
 			@Override
 			public void onClick(View v) {
 				// Handling Starred click event
-				mStarredOperation = new StarredOperation(position,
-						(starred) ? false : true);
-				mStarredOperation.execute();
+				OEHelper mOE = null;
+				mOE = db().getOEInstance();
+				ConnectivityManager cm = (ConnectivityManager) getActivity()
+						.getSystemService(Context.CONNECTIVITY_SERVICE);
+				NetworkInfo in = cm.getActiveNetworkInfo();
+				if (mOE != null && in != null && in.isConnected()) {
+					mStarredOperation = new StarredOperation(position,
+							(starred) ? false : true);
+					mStarredOperation.execute();
+				} else {
+					Toast.makeText(getActivity(), "No Connection",
+							Toast.LENGTH_SHORT).show();
+				}
 			}
 		});
 
@@ -362,7 +392,6 @@ public class MessageDetail extends BaseFragment implements OnClickListener {
 			}
 			if (!mMessageData.getString("record_name").equals("false"))
 				title = mMessageData.getString("record_name");
-
 			txvTitle.setText(title);
 		}
 
@@ -489,6 +518,7 @@ public class MessageDetail extends BaseFragment implements OnClickListener {
 		boolean mToRead = false;
 		boolean isConnection = true;
 		OEHelper mOE = null;
+		int count = 0;
 
 		public ReadUnreadOperation(boolean toRead) {
 			mOE = db().getOEInstance();
@@ -524,6 +554,7 @@ public class MessageDetail extends BaseFragment implements OnClickListener {
 			}
 			if (toggleReadUnread(mOE, ids, default_model, res_id, parent_id,
 					mToRead)) {
+				count = ids.length();
 				flag = true;
 			}
 
@@ -533,12 +564,14 @@ public class MessageDetail extends BaseFragment implements OnClickListener {
 		@Override
 		protected void onPostExecute(Boolean result) {
 			if (result) {
+				init();
 				DrawerListener drawer = (DrawerListener) getActivity();
 				drawer.refreshDrawer(Message.TAG);
 			} else {
 				Toast.makeText(getActivity(), "No connection",
 						Toast.LENGTH_LONG).show();
 			}
+
 			mProgressDialog.dismiss();
 		}
 
