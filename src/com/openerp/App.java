@@ -46,7 +46,7 @@ public class App extends Application {
 		boolean isConnected = false;
 		ConnectivityManager conManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo nInfo = conManager.getActiveNetworkInfo();
-		if (nInfo.isConnectedOrConnecting())
+		if (nInfo.isConnectedOrConnecting() && nInfo != null)
 			return isConnected;
 		return isConnected;
 	}

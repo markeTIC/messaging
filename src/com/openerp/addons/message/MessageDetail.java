@@ -33,8 +33,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -84,7 +82,6 @@ public class MessageDetail extends BaseFragment implements OnClickListener {
 	ReadUnreadOperation mReadUnreadOperation = null;
 	Integer[] mStarredDrawables = new Integer[] { R.drawable.ic_action_starred,
 			R.drawable.ic_action_unstarred };
-	View view = null;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -120,7 +117,6 @@ public class MessageDetail extends BaseFragment implements OnClickListener {
 					mView = getActivity().getLayoutInflater().inflate(
 							getResource(), parent, false);
 				mView = createListViewRow(mView, position);
-				view = mView;
 				return mView;
 			}
 		};
@@ -200,10 +196,7 @@ public class MessageDetail extends BaseFragment implements OnClickListener {
 			public void onClick(View v) {
 				OEHelper mOE = null;
 				mOE = db().getOEInstance();
-				ConnectivityManager cm = (ConnectivityManager) getActivity()
-						.getSystemService(Context.CONNECTIVITY_SERVICE);
-				NetworkInfo in = cm.getActiveNetworkInfo();
-				if (mOE != null && in != null && in.isConnected()) {
+				if (mOE != null) {
 					handleVoteToggle(position, txvVoteNumber, row);
 				} else {
 					Toast.makeText(getActivity(), "No Connection",
@@ -238,10 +231,7 @@ public class MessageDetail extends BaseFragment implements OnClickListener {
 				// Handling Starred click event
 				OEHelper mOE = null;
 				mOE = db().getOEInstance();
-				ConnectivityManager cm = (ConnectivityManager) getActivity()
-						.getSystemService(Context.CONNECTIVITY_SERVICE);
-				NetworkInfo in = cm.getActiveNetworkInfo();
-				if (mOE != null && in != null && in.isConnected()) {
+				if (mOE != null) {
 					mStarredOperation = new StarredOperation(position,
 							(starred) ? false : true);
 					mStarredOperation.execute();

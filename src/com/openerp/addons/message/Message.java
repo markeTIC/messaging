@@ -157,9 +157,6 @@ public class Message extends BaseFragment implements
 				if (mView == null)
 					mView = getActivity().getLayoutInflater().inflate(
 							getResource(), parent, false);
-				if (mListView.getVisibility() == View.GONE) {
-					mListView.setVisibility(View.VISIBLE);
-				}
 				mView = handleRowView(mView, position);
 				return mView;
 			}

@@ -398,8 +398,6 @@ public class MessageComposeActivity extends Activity implements TokenListener,
 					res_id = mNoteObj.getInt("id");
 				}
 				try {
-					// OEDataRow user = new ResPartnerDB(mContext).select(OEUser
-					// .current(mContext).getPartner_id());
 					OEArguments args = new OEArguments();
 
 					// Partners
@@ -665,8 +663,6 @@ public class MessageComposeActivity extends Activity implements TokenListener,
 		OEDataRow row = (OEDataRow) token;
 		if (!isReply)
 			mSelectedPartners.remove("key_" + row.getString("id"));
-		// else
-		// mPartnerTagsView.addObject(token);
 	}
 
 	@Override
