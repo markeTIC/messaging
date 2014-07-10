@@ -46,6 +46,7 @@ public class MailMessage extends OModel {
 	@Override
 	public JSONObject beforeCreateRow(OColumn column, JSONObject original_record) {
 		try {
+			// Check for author and email_from
 			if (column.equals(author_id)) {
 				JSONArray author_id = original_record.getJSONArray(column
 						.getName());
@@ -55,8 +56,28 @@ public class MailMessage extends OModel {
 				} else {
 					original_record.put("email_from", false);
 				}
-				return original_record;
 			}
+			// Check for partner_ids
+			if (column.equals(partner_ids)) {
+				JSONArray partner_ids = original_record
+						.getJSONArray("partner_ids");
+				JSONArray partner_ids_list = new JSONArray();
+				for (int i = 0; i < partner_ids.length(); i++) {
+					partner_ids_list.put(partner_ids.getJSONArray(i).get(0));
+				}
+				original_record.put("partner_ids", partner_ids_list);
+			}
+			// Check for attachment ids
+			if (column.equals(attachment_ids)) {
+				JSONArray attachment_ids_list = new JSONArray();
+				JSONArray attachment_ids = original_record
+						.getJSONArray("attachment_ids");
+				for (int i = 0; i < attachment_ids.length(); i++)
+					attachment_ids_list.put(attachment_ids.getJSONObject(i)
+							.getInt("id"));
+				original_record.put("attachment_ids", attachment_ids_list);
+			}
+			return original_record;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

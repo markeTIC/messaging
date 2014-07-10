@@ -425,11 +425,7 @@ public class OSyncHelper {
 						JSONArray ids_list = record.getJSONArray(column
 								.getName());
 						for (int i = 0; i < ids_list.length(); i++) {
-							if (ids_list.get(i) instanceof JSONArray
-									&& ids_list.getJSONArray(i).length() == 2) {
-								r_ids.add(ids_list.getJSONArray(i).getInt(0));
-							} else
-								r_ids.add(ids_list.getInt(i));
+							r_ids.add(ids_list.getInt(i));
 						}
 						values.put(column.getName(), r_ids);
 						ORelationRecord mrel_record = mRelationRecordList.new ORelationRecord();
@@ -486,8 +482,9 @@ public class OSyncHelper {
 			List<OValues> values_list = new ArrayList<OValues>();
 			for (int i = 0; i < records.length(); i++) {
 				JSONObject record = records.getJSONObject(i);
-				values_list.add(createValueRow(model, model.getColumns(false),
-						record));
+				if (record.has("id"))
+					values_list.add(createValueRow(model,
+							model.getColumns(false), record));
 			}
 			// Creating new records.
 			List<Integer> affectedIds = model.createORReplace(values_list);
@@ -550,4 +547,15 @@ public class OSyncHelper {
 		}
 		return null;
 	}
+
+	public JSONObject search_read(String model, JSONObject fields,
+			JSONObject domain) {
+		try {
+			return mOdoo.search_read(model, fields, domain);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 }
