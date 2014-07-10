@@ -425,7 +425,11 @@ public class OSyncHelper {
 						JSONArray ids_list = record.getJSONArray(column
 								.getName());
 						for (int i = 0; i < ids_list.length(); i++) {
-							r_ids.add(ids_list.getInt(i));
+							if (ids_list.get(i) instanceof JSONArray
+									&& ids_list.getJSONArray(i).length() == 2) {
+								r_ids.add(ids_list.getJSONArray(i).getInt(0));
+							} else
+								r_ids.add(ids_list.getInt(i));
 						}
 						values.put(column.getName(), r_ids);
 						ORelationRecord mrel_record = mRelationRecordList.new ORelationRecord();
@@ -469,6 +473,7 @@ public class OSyncHelper {
 				}
 			}
 		} catch (Exception e) {
+			Log.d(TAG, model.getModelName());
 			e.printStackTrace();
 		}
 		return values;

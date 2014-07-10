@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.openerp"
-    android:versionCode="2"
+    android:versionCode="28"
     android:versionName="2.0alpha" >
 
     <uses-sdk
@@ -62,22 +62,30 @@
             </intent-filter>
         </activity>
 
-        <!-- Contact service -->
+        <!-- Message provider -->
+        <provider
+            android:name="com.odoo.addons.message.providers.message.MessageProvider"
+            android:authorities="com.odoo.addons.message.providers.message"
+            android:enabled="true"
+            android:exported="false"
+            android:label="Messages"
+            android:syncable="true" />
+
+        <!-- Message provider service -->
         <service
-            android:name="com.odoo.base.res.services.ContactSyncService"
-            android:exported="true"
-            android:process=":contacts" >
+            android:name="com.odoo.addons.message.services.MessageSyncService"
+            android:exported="false" >
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>
 
             <meta-data
                 android:name="android.content.SyncAdapter"
-                android:resource="@xml/sync_contacts" />
-            <meta-data
-                android:name="android.provider.CONTACTS_STRUCTURE"
-                android:resource="@xml/contacts" />
+                android:resource="@xml/sync_message" />
         </service>
+
+        <!-- Contact service -->
+
     </application>
 
 </manifest>

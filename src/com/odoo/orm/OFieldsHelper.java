@@ -50,4 +50,7 @@ public class OFieldsHelper {
 		return mValues;
 	}
 
+	public interface ValueWatcher {
+		public OValues getValue(OColumn col, Object value);
+	}
 }
