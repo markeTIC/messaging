@@ -29,5 +29,7 @@ When you process messages in your inbox, you can mark some as todo. From this me
     <string name="detail_note_name">Note Name</string>
     <string name="detail_note_memo">Note Memo</string>
     <string name="note_menu_title_speech_to_text">Speech to text</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>

@@ -1,57 +1,51 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<odoo.controls.OForm xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:odoo="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingTop="?android:attr/actionBarSize" >
+    odoo:background_selector="@drawable/oe_listview_background_selector"
+	odoo:model="mail.message" >
 
-    <include
-        android:id="@+id/loadingProgress"
-        layout="@layout/listview_data_loading_progress"
-        android:paddingBottom="5dp"
-        android:paddingTop="5dp"
-        android:visibility="gone" />
+    <!--
+             <include
+            android:id="@+id/loadingProgress"
+            layout="@layout/listview_data_loading_progress"
+            android:paddingBottom="5dp"
+            android:paddingTop="5dp"
+            android:visibility="gone" />
 
-    <LinearLayout
-        android:id="@+id/messageDetailView"
+        <LinearLayout
+            android:id="@+id/messageDetailView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="5"
+            android:background="#eeeeee"
+            android:orientation="vertical" >
+    -->
+
+
+    <!--
+                 <View
+                android:id="@+id/groupColorLine"
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:background="#ffffff" />
+    -->
+
+    <odoo.controls.OField
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="5"
-        android:background="#eeeeee"
-        android:orientation="vertical" >
+        android:layout_height="wrap_content"
+        odoo:field_name="subject"
+        odoo:field_textAppearance="?android:attr/textAppearanceMedium"
+        odoo:with_label="false" >
+    </odoo.controls.OField>
 
-        <View
-            android:id="@+id/groupColorLine"
-            android:layout_width="match_parent"
-            android:layout_height="5dp"
-            android:background="#ffffff" />
+    <odoo.controls.OList
+        android:id="@+id/lstMessageDetail"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        odoo:custom_layout="@layout/fragment_message_detail_listview_items" >
+    </odoo.controls.OList>
+    <!-- </LinearLayout> -->
 
-        <TextView
-            android:id="@+id/txvMessageTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#ffffff"
-            android:fontFamily="sans-serif-condensed"
-            android:paddingBottom="15dp"
-            android:paddingLeft="15dp"
-            android:paddingRight="15dp"
-            android:paddingTop="10dp"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="#414141"
-            android:textStyle="bold" />
-
-        <odoo.controls.OList
-            android:id="@+id/lstMessageDetail"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:divider="#00ffffff"
-            android:dividerHeight="0dp"
-            android:paddingBottom="20dp"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:paddingTop="10dp"
-            android:scrollbars="none" >
-        </odoo.controls.OList>
-    </LinearLayout>
-
-</LinearLayout>
+</odoo.controls.OForm>

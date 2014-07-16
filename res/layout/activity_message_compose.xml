@@ -1,4 +1,5 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/com.openerp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#DCE1E3"
@@ -12,42 +13,26 @@
         android:orientation="vertical"
         android:padding="10dp" >
 
-        <LinearLayout
+        <odoo.controls.OField
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:orientation="horizontal"
-            android:weightSum="3" >
+            app:editable="true"
+            app:field_name="To"
+            app:with_label="false" />
 
-            <com.openerp.util.tags.TagsView
-                android:id="@+id/receipients_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-light"
-                android:inputType="textFilter"
-                android:nextFocusDown="@+id/edtMessageSubject"
-                android:textColor="#828182" />
-        </LinearLayout>
-
-        <EditText
-            android:id="@+id/edtMessageSubject"
+        <odoo.controls.OField
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:fontFamily="sans-serif-light"
-            android:hint="Subject"
-            android:singleLine="true" />
+            app:editable="true"
+            app:field_name="subject"
+            app:with_label="false" />
 
-        <EditText
-            android:id="@+id/edtMessageBody"
+        <odoo.controls.OField
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:fontFamily="sans-serif-light"
-            android:hint="Body"
-            android:inputType="textMultiLine" />
-
-        <include layout="@layout/activity_message_compose_attachment_grid" />
+            app:editable="true"
+            app:field_name="body"
+            app:with_label="false" />
     </LinearLayout>
 
 </ScrollView>

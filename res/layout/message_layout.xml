@@ -1,8 +1,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:odoo="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:clipToPadding="false"
+    android:orientation="vertical"
+    android:paddingTop="?android:attr/actionBarSize" >
 
     <include
         android:id="@+id/waitingForSyncToStart"
@@ -34,12 +36,11 @@
         android:textColor="#cacaca"
         android:visibility="gone" />
 
-    <ListView
+    <odoo.controls.OList
         android:id="@+id/lstMeesages"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clipToPadding="false"
-        android:paddingTop="?android:attr/actionBarSize" >
-    </ListView>
+        android:layout_height="match_parent"
+        odoo:custom_layout="@layout/fragment_message_listview_items" >
+    </odoo.controls.OList>
 
 </LinearLayout>

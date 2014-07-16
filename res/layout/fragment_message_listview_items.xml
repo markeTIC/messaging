@@ -1,9 +1,10 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@drawable/oe_listview_background_selector"
+<odoo.controls.OForm xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:odoo="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="horizontal"
-    android:weightSum="4" >
+    odoo:background_selector="@drawable/oe_listview_background_selector"
+    odoo:model="mail.message" >
 
     <LinearLayout
         android:id="@+id/messageArchiveView"
@@ -33,8 +34,7 @@
             android:layout_width="48dp"
             android:layout_height="match_parent"
             android:background="?android:selectableItemBackground"
-            android:src="@drawable/ic_action_content_undo"
-            android:tint="#fff" />
+            android:src="@drawable/ic_action_content_undo" />
     </LinearLayout>
 
     <LinearLayout
@@ -53,26 +53,22 @@
             android:gravity="left|top"
             android:orientation="horizontal" >
 
-            <TextView
-                android:id="@+id/txvMessageSubject"
+            <odoo.controls.OField
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
-                android:fontFamily="sans-serif-condensed"
-                android:singleLine="true"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="#414141"
-                android:textStyle="bold" />
+                odoo:field_name="subject"
+                odoo:field_textAppearance="?android:attr/textAppearanceMedium"
+                odoo:with_label="false" >
+            </odoo.controls.OField>
 
-            <TextView
-                android:id="@+id/txvMessageDate"
+            <odoo.controls.OField
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:fontFamily="sans-serif-condensed"
-                android:paddingRight="5dp"
-                android:singleLine="true"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                odoo:field_name="date"
+                odoo:field_textAppearance="?android:attr/textAppearanceSmall"
+                odoo:with_label="false" >
+            </odoo.controls.OField>
         </LinearLayout>
 
         <LinearLayout
@@ -81,23 +77,24 @@
             android:gravity="left|top"
             android:orientation="horizontal" >
 
-            <TextView
-                android:id="@+id/txvMessageBody"
+            <odoo.controls.OField
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
-                android:ellipsize="end"
-                android:fontFamily="sans-serif-light"
-                android:lines="2"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="#414141" />
+                odoo:field_name="body"
+                odoo:field_textAppearance="?android:attr/textAppearanceSmall"
+                odoo:with_label="false" />
 
-            <ImageView
-                android:id="@+id/imgMessageStarred"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_action_starred"
-                android:layout_marginLeft="5dp" />
+            <!--
+                 <odoo.controls.OField
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                odoo:binaryType="image"
+                odoo:defaultImage="@drawable/ic_action_starred"
+                odoo:field_name=""
+                odoo:label_bottom_border_height="0" />
+            -->
         </LinearLayout>
 
         <LinearLayout
@@ -107,16 +104,14 @@
             android:orientation="horizontal"
             android:weightSum="2" >
 
-            <TextView
-                android:id="@+id/txvMessageFrom"
+            <odoo.controls.OField
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
-                android:ellipsize="end"
-                android:fontFamily="sans-serif-condensed"
-                android:lines="1"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="#414141" />
+                odoo:field_name="email_from"
+                odoo:field_textAppearance="?android:attr/textAppearanceSmall"
+                odoo:with_label="false" >
+            </odoo.controls.OField>
 
             <TextView
                 android:id="@+id/txvChilds"
@@ -128,21 +123,14 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="#414141" />
 
-            <TextView
-                android:id="@+id/txvMessageTag"
+            <odoo.controls.OField
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:background="#414141"
-                android:fontFamily="sans-serif-condensed"
-                android:lines="1"
-                android:paddingBottom="3dp"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"
-                android:paddingTop="3dp"
-                android:textColor="#ffffff"
-                android:textSize="11sp" />
+                odoo:field_name="type"
+                odoo:field_textAppearance="?android:attr/textAppearanceSmall"
+                odoo:with_label="false" >
+            </odoo.controls.OField>
         </LinearLayout>
     </LinearLayout>
 
-</LinearLayout>
+</odoo.controls.OForm>

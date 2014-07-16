@@ -18,6 +18,7 @@
  */
 package com.odoo.config;
 
+import com.odoo.addons.message.MailGroup;
 import com.odoo.addons.message.Message;
 import com.odoo.support.OModule;
 import com.odoo.support.OModulesHelper;
@@ -28,6 +29,6 @@ import com.odoo.support.OModulesHelper;
 public class OModules extends OModulesHelper {
 
 	OModule message = new OModule(Message.class).setDefault();
-	// OModule library = new OModule(Library.class).setDefault();
+	OModule mailgroup = new OModule(MailGroup.class);
 
 }

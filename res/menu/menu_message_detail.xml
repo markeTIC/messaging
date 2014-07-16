@@ -2,14 +2,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/menu_message_detail_attachmet"
-        android:icon="@drawable/ic_action_content_new_attachment"
-        android:showAsAction="ifRoom|withText"
-        android:title="Attachment"/>
+        android:id="@+id/menu_message_read"
+        android:icon="@drawable/ic_action_mark_read"
+        android:showAsAction="always"
+        android:title="Read"/>
     <item
-        android:id="@+id/menu_message_detail_send"
-        android:icon="@drawable/ic_action_send_now"
+        android:id="@+id/menu_message_unread"
+        android:icon="@drawable/ic_action_mark_unread"
+        android:showAsAction="always"
+        android:title="UnRead"/>
+    <item
+        android:id="@+id/menu_message_detail_save"
+        android:icon="@drawable/ic_action_done"
         android:showAsAction="ifRoom|withText"
-        android:title="Send Message"/>
+        android:title="Done"/>
 
 </menu>

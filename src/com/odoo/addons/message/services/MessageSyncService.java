@@ -162,10 +162,47 @@ public class MessageSyncService extends OService {
 				db.update(values, message_id);
 				updated_ids.add(message_id);
 			}
-			// updateMessageVotes(db, oe, user, ids_array);
+			updateMessageVotes(db, oe, user, ids_array);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return updated_ids;
+	}
+
+	private void updateMessageVotes(MailMessage db, OSyncHelper oe, OUser user,
+			JSONArray ids_array) {
+		Log.d(TAG, "MessageSyncServide->updateMessageVotes()");
+		try {
+			JSONObject vote_fields = new JSONObject();
+			vote_fields.accumulate("fields", "vote_user_ids");
+
+			ODomain domain = new ODomain();
+			domain.add("id", "in", ids_array);
+			JSONObject vote_detail = oe.search_read("mail.message",
+					vote_fields, domain.get());
+			// .search_read("mail.message",vote_fields, domain.get(), 0, 0,
+			// null, null);
+			for (int j = 0; j < vote_detail.getJSONArray("records").length(); j++) {
+				JSONObject obj_vote = vote_detail.getJSONArray("records")
+						.getJSONObject(j);
+				JSONArray voted_user_ids = obj_vote
+						.getJSONArray("vote_user_ids");
+				OValues values = new OValues();
+				for (int i = 0; i < voted_user_ids.length(); i++) {
+					if (voted_user_ids.getInt(i) == user.getUser_id()) {
+						values.put("has_voted", true);
+						break;
+					} else {
+						values.put("has_voted", false);
+					}
+				}
+				int total_votes = voted_user_ids.length();
+				int message_id = obj_vote.getInt("id");
+				values.put("vote_nb", total_votes);
+				db.update(values, message_id);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
