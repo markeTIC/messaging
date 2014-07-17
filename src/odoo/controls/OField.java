@@ -271,10 +271,22 @@ public class OField extends LinearLayout implements ManyToOneItemChangeListener 
 		setOrientation(LinearLayout.VERTICAL);
 		setTag("field_tag_" + mAttributes.getString(KEY_FIELD_NAME, ""));
 		createLabel();
+		OColumn column = mColumn;
+		// Checks for binary type ref_column
+		int binaryType = mAttributes.getResource(KEY_BINARY_TYPE, -1);
+		if (mColumn != null && binaryType > -1) {
+			OColumn c = mModel.getColumn(mAttributes.getString(KEY_REF_COLUMN,
+					mColumn.getName()));
+			column = c;
+			mFieldWidget = (binaryType == 0) ? OFieldType.BINARY_IMAGE
+					: OFieldType.BINARY_FILE;
+			mControlRecord = mControlRecord.getM2ORecord(mColumn.getName())
+					.browse();
+		}
 		if (mFieldWidget == null)
 			createTextViewControl();
 		else
-			createWidget(mFieldWidget);
+			createWidget(column, mFieldWidget);
 	}
 
 	/**
@@ -283,14 +295,14 @@ public class OField extends LinearLayout implements ManyToOneItemChangeListener 
 	 * @param fieldWidget
 	 *            the field widget
 	 */
-	private void createWidget(OFieldType fieldWidget) {
+	private void createWidget(OColumn column, OFieldType fieldWidget) {
 		switch (fieldWidget) {
 		case MANY_TO_ONE:
 			createManyToOneWidget();
 			break;
 		case BINARY_FILE:
 		case BINARY_IMAGE:
-			createBinaryControl(fieldWidget);
+			createBinaryControl(column, fieldWidget);
 			break;
 		case BOOLEAN_WIDGET:
 		case BOOLEAN_CHECKBOX:
@@ -455,7 +467,7 @@ public class OField extends LinearLayout implements ManyToOneItemChangeListener 
 	 * @param binary_type
 	 *            the binary_type
 	 */
-	private void createBinaryControl(OFieldType binary_type) {
+	private void createBinaryControl(OColumn mColumn, OFieldType binary_type) {
 		ImageView imgBinary = new ImageView(mContext);
 		mLayoutParams = new LayoutParams(LayoutParams.MATCH_PARENT,
 				LayoutParams.MATCH_PARENT);
@@ -685,7 +697,6 @@ public class OField extends LinearLayout implements ManyToOneItemChangeListener 
 			mFieldWidget = (binaryType == 0) ? OFieldType.BINARY_IMAGE
 					: OFieldType.BINARY_FILE;
 		}
-
 		mAttributes.put(KEY_DEFAULT_IMAGE,
 				mTypedArray.getResourceId(R.styleable.OField_defaultImage, -1));
 		int booleanType = mTypedArray.getInt(R.styleable.OField_booleanWidget,

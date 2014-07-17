@@ -67,8 +67,8 @@ public class MailGroup extends BaseFragment implements OnPullListener {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		mView = inflater.inflate(R.layout.fragment_message_groups_list,
-				container, false);
+		mView = inflater
+				.inflate(R.layout.message_groups_list, container, false);
 		mApp = (App) getActivity().getApplicationContext();
 		if (mApp.inNetwork())
 			odoo = mApp.getOdoo();
@@ -138,6 +138,7 @@ public class MailGroup extends BaseFragment implements OnPullListener {
 		mMailFollowerDB = new MailFollowers(context);
 
 		List<DrawerItem> menu = new ArrayList<DrawerItem>();
+		menu.add(new DrawerItem(TAG, "MyGroups", true));
 		menu.add(new DrawerItem(TAG, "Groups", count(context, MType.group), 0,
 				getFragment(MType.group)));
 		MailGroup group = new MailGroup();
@@ -147,38 +148,38 @@ public class MailGroup extends BaseFragment implements OnPullListener {
 		// menu.add(new DrawerItem(TAG, "My Groups", true));
 
 		// Join Group
-		group.setArguments(bundle);
+		//group.setArguments(bundle);
 		// menu.add(new DrawerItem(TAG, "Join Group", 0,
 		// R.drawable.ic_action_social_group, group));
 
 		// Dynamic Groups
-		List<ODataRow> groups = mMailFollowerDB.select(
-				"res_model = ? AND partner_id = ?",
-				new String[] { db.getModelName(),
-						OUser.current(context).getPartner_id() + "" });
-		int index = 0;
-		MailMessage messageDB = new MailMessage(context);
-		for (ODataRow row : groups) {
-			if (mTagColors.length - 1 < index)
-				index = 0;
-			ODataRow grp = db.select(row.getInt("res_id"));
-			if (grp != null) {
-				Message message = new Message();
-				bundle = new Bundle();
-				bundle.putInt("group_id", grp.getInt("id"));
-				message.setArguments(bundle);
-
-				int count = messageDB.count(
-						"to_read = ? AND model = ? AND res_id = ?",
-						new String[] { "true", db().getModelName(),
-								row.getString("id") });
-				menu.add(new DrawerItem(TAG, grp.getString("name"), count,
-						mTagColors[index], message));
-				grp.put("tag_color", Color.parseColor(mTagColors[index]));
-				mMenuGroups.put("group_" + grp.getInt("id"), grp);
-				index++;
-			}
-		}
+		// List<ODataRow> groups = mMailFollowerDB.select(
+		// "res_model = ? AND partner_id = ?",
+		// new String[] { db.getModelName(),
+		// OUser.current(context).getPartner_id() + "" });
+		// int index = 0;
+		// MailMessage messageDB = new MailMessage(context);
+		// for (ODataRow row : groups) {
+		// if (mTagColors.length - 1 < index)
+		// index = 0;
+		// ODataRow grp = db.select(row.getInt("res_id"));
+		// if (grp != null) {
+		// Message message = new Message();
+		// bundle = new Bundle();
+		// bundle.putInt("group_id", grp.getInt("id"));
+		// message.setArguments(bundle);
+		//
+		// int count = messageDB.count(
+		// "to_read = ? AND model = ? AND res_id = ?",
+		// new String[] { "true", db().getModelName(),
+		// row.getString("id") });
+				//menu.add(new DrawerItem(TAG, grp.getString("name"), count,
+					//	mTagColors[index], message));
+		// grp.put("tag_color", Color.parseColor(mTagColors[index]));
+		// mMenuGroups.put("group_" + grp.getInt("id"), grp);
+		// index++;
+		// }
+		// }
 		// }
 		return menu;
 	}

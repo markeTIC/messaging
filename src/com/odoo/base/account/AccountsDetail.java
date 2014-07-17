@@ -59,7 +59,7 @@ public class AccountsDetail extends BaseFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		setHasOptionsMenu(true);
-		rootView = inflater.inflate(R.layout.fragment_all_accounts_detail,
+		rootView = inflater.inflate(R.layout.all_accounts_detail,
 				container, false);
 		scope = new AppScope(this);
 		scope.main().setTitle(R.string.title_accounts);
@@ -71,7 +71,7 @@ public class AccountsDetail extends BaseFragment {
 		gridAccounts = (GridView) rootView.findViewById(R.id.gridAccounts);
 		mAccounts = new ArrayList<Object>(getAccounts());
 		mAdapter = new OListAdapter(getActivity(),
-				R.layout.fragment_account_detail_item, mAccounts) {
+				R.layout.account_detail_item, mAccounts) {
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
 				View mView = convertView;

@@ -3,7 +3,6 @@ package com.odoo.addons.message;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import odoo.controls.OList;
 import odoo.controls.OList.OnRowClickListener;
 import android.content.Context;
@@ -103,7 +102,7 @@ public class Message extends BaseFragment implements OnPullListener,
 		if (bundle != null) {
 			if (bundle.containsKey("type")) {
 				mCurrentType = bundle.getString("type");
-				Log.e("inside", "Type:" + mCurrentType);
+				Log.e("inside ", mCurrentType);
 				String title = "archives";
 				if (mCurrentType.equals("inbox")) {
 					Log.e("Loader", "inbox");
@@ -153,16 +152,16 @@ public class Message extends BaseFragment implements OnPullListener,
 	public List<DrawerItem> drawerMenus(Context context) {
 		List<DrawerItem> menu = new ArrayList<DrawerItem>();
 		menu.add(new DrawerItem(TAG, "Message", true));
-		menu.add(new DrawerItem(TAG, "Inbox", count(context, MType.inbox), 0,
-				getFragment(MType.inbox)));
-		menu.add(new DrawerItem(TAG, "To:me", count(context, MType.tome), 0,
-				getFragment(MType.tome)));
-		menu.add(new DrawerItem(TAG, "To-do", count(context, MType.todo), 0,
-				getFragment(MType.todo)));
+		menu.add(new DrawerItem(TAG, "Inbox", count(context, MType.inbox),
+				R.drawable.ic_action_inbox, getFragment(MType.inbox)));
+		menu.add(new DrawerItem(TAG, "To:me", count(context, MType.tome),
+				R.drawable.ic_action_user, getFragment(MType.tome)));
+		menu.add(new DrawerItem(TAG, "To-do", count(context, MType.todo),
+				R.drawable.ic_action_todo, getFragment(MType.todo)));
 		menu.add(new DrawerItem(TAG, "Archives",
 				count(context, MType.archives), 0, getFragment(MType.archives)));
-		menu.add(new DrawerItem(TAG, "Outbox", count(context, MType.outbox), 0,
-				getFragment(MType.outbox)));
+		menu.add(new DrawerItem(TAG, "Outbox", count(context, MType.outbox),
+				R.drawable.ic_action_archive, getFragment(MType.outbox)));
 		return menu;
 
 	}
@@ -216,16 +215,18 @@ public class Message extends BaseFragment implements OnPullListener,
 	public void onPause() {
 		super.onPause();
 		scope.context().unregisterReceiver(messageSyncFinish);
+
 	}
 
 	private SyncFinishReceiver messageSyncFinish = new SyncFinishReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			Log.e("Pullable", "complete");
 			mTouchListener.setPullComplete();
 			scope.main().refreshDrawer(TAG);
 			mListViewAdapter.clear();
 			mMessageObjects.clear();
-			mListViewAdapter.notifiyDataChange(mMessageObjects);
+			// mListViewAdapter.notifiyDataChange(mMessageObjects);
 		}
 	};
 

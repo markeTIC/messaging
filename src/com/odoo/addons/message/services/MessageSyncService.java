@@ -45,9 +45,10 @@ public class MessageSyncService extends OService {
 	public void performSync(Context context, Account account, Bundle extras,
 			String authority, ContentProviderClient provider,
 			SyncResult syncResult) {
+		Log.d(TAG, "MessageSyncService->Start");
+		OUser user = OdooAccountManager.getAccountDetail(context, account.name);
 		Intent intent = new Intent();
 		intent.setAction(SyncFinishReceiver.SYNC_FINISH);
-		OUser user = OdooAccountManager.getAccountDetail(context, account.name);
 		try {
 			MailMessage mdb = new MailMessage(context);
 			mdb.setUser(user);
@@ -124,10 +125,13 @@ public class MessageSyncService extends OService {
 			List<Integer> updated_ids = updateOldMessages(mdb, oe, user, ids);
 			intent.putIntegerArrayListExtra("updated_ids",
 					(ArrayList<Integer>) updated_ids);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		if (user.getAndroidName().equals(account.name)) {
+			context.sendBroadcast(intent);
+		}
 	}
 
 	private List<Integer> updateOldMessages(MailMessage db, OSyncHelper oe,

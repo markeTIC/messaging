@@ -8,7 +8,7 @@
 
     <include
         android:id="@+id/waitingForSyncToStart"
-        layout="@layout/fragment_message_listview_header"
+        layout="@layout/message_listview_header"
         android:paddingBottom="5dp"
         android:visibility="gone" />
 
@@ -40,7 +40,7 @@
         android:id="@+id/lstMeesages"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        odoo:custom_layout="@layout/fragment_message_listview_items" >
+        odoo:custom_layout="@layout/message_listview_items" >
     </odoo.controls.OList>
 
 </LinearLayout>

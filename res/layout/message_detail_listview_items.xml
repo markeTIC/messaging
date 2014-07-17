@@ -1,0 +1,140 @@
+<odoo.controls.OForm xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:odoo="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    odoo:background_selector="@drawable/oe_listview_background_selector"
+    odoo:model="mail.message" >
+
+    <odoo.controls.OField
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="5dp"
+        android:paddingTop="5dp"
+        odoo:field_name="subject"
+        odoo:field_textAppearance="?android:attr/textAppearanceMediumInverse"
+        odoo:with_label="false" >
+    </odoo.controls.OField>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#eeeeee" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <odoo.controls.OField
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            odoo:binaryType="image"
+            odoo:field_name="author_id"
+            odoo:ref_column="image_small"
+            odoo:with_label="false" >
+        </odoo.controls.OField>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:orientation="vertical"
+            android:padding="5dp" >
+
+            <odoo.controls.OField
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                odoo:field_name="author_id"
+                odoo:with_label="false" />
+
+            <odoo.controls.OField
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                odoo:field_name="author_id"
+                odoo:ref_column="email"
+                odoo:with_label="false" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/imgBtnStar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_weight="0.5"
+            android:contentDescription="Starred"
+            android:src="@drawable/ic_action_starred" />
+
+        <ImageView
+            android:id="@+id/imgBtnReply"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_weight="0.5"
+            android:contentDescription="Reply"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:src="@drawable/ic_action_social_reply" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:orientation="vertical"
+            android:paddingLeft="5dp" >
+
+            <odoo.controls.OField
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                odoo:field_name="author_id"
+                odoo:with_label="false" >
+            </odoo.controls.OField>
+
+            <odoo.controls.OField
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                odoo:field_name="date"
+                odoo:with_label="false" >
+            </odoo.controls.OField>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/txvChilds"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:gravity="bottom|right"
+            android:text="Reply" />
+
+        <ImageView
+            android:id="@+id/imgVotenb"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="right"
+            android:layout_weight="1"
+            android:contentDescription="ImgVotenb"
+            android:src="@drawable/ic_thumbs_up_unselected_dark_tablet"
+            android:tint="#000000" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#eeeeee" />
+
+    <odoo.controls.OField
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="5dp"
+        odoo:field_name="body"
+        odoo:with_label="false" >
+    </odoo.controls.OField>
+
+</odoo.controls.OForm>

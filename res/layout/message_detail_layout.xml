@@ -1,10 +1,9 @@
-<odoo.controls.OForm xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:odoo="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    odoo:background_selector="@drawable/oe_listview_background_selector"
-	odoo:model="mail.message" >
+    android:paddingTop="?android:attr/actionBarSize" >
 
     <!--
              <include
@@ -32,20 +31,12 @@
                 android:background="#ffffff" />
     -->
 
-    <odoo.controls.OField
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        odoo:field_name="subject"
-        odoo:field_textAppearance="?android:attr/textAppearanceMedium"
-        odoo:with_label="false" >
-    </odoo.controls.OField>
-
     <odoo.controls.OList
         android:id="@+id/lstMessageDetail"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        odoo:custom_layout="@layout/fragment_message_detail_listview_items" >
+        odoo:custom_layout="@layout/message_detail_listview_items" >
     </odoo.controls.OList>
     <!-- </LinearLayout> -->
 
-</odoo.controls.OForm>
+</LinearLayout>

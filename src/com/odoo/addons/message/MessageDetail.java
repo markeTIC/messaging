@@ -3,7 +3,8 @@ package com.odoo.addons.message;
 import java.util.ArrayList;
 import java.util.List;
 
-import odoo.controls.OForm;
+import odoo.controls.OForm.OnViewClickListener;
+import odoo.controls.OList;
 
 import org.json.JSONArray;
 
@@ -18,6 +19,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.odoo.addons.message.Message.MType;
@@ -26,36 +28,39 @@ import com.odoo.orm.ODataRow;
 import com.odoo.orm.OModel;
 import com.odoo.orm.OSyncHelper;
 import com.odoo.support.BaseFragment;
-import com.odoo.util.OControls;
 import com.odoo.util.drawer.DrawerItem;
 import com.odoo.util.drawer.DrawerListener;
 import com.openerp.R;
 
-public class MessageDetail extends BaseFragment {
+public class MessageDetail extends BaseFragment implements OnViewClickListener {
 	public static final String TAG = "com.odoo.addons.message.MessageDetail";
 
 	private View mView = null;
 	private MType mType = null;
 	private Integer mId = null;
 	private Boolean mLocalRecord = false;
-	private OForm mForm = null;
-	private ODataRow mRecord = null;
+	private OList mListMessages = null;
+	private List<ODataRow> mRecord = null;
 	private Menu mMenu = null;
 	private OModel mModel = null;
 	Integer mMessageId = null;
 	ODataRow mMessageData = null;
 	ReadUnreadOperation mReadUnreadOperation = null;
 	List<Object> mMessageObjects = new ArrayList<Object>();
+	ImageView btnStar;
+	boolean isFavorite;
+
+	Integer[] mStarredDrawables = new Integer[] { R.drawable.ic_action_starred,
+			R.drawable.ic_action_unstarred };
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		initArgs();
-		setHasOptionsMenu(true);
 
-		mView = inflater.inflate(
-				R.layout.fragment_message_detail_listview_items, container,
+		setHasOptionsMenu(true);
+		mView = inflater.inflate(R.layout.message_detail_layout, container,
 				false);
+		initArgs();
 		return mView;
 	}
 
@@ -66,26 +71,19 @@ public class MessageDetail extends BaseFragment {
 	}
 
 	private void init() {
-		Bundle bundle_data = getArguments();
-		mMessageId = bundle_data.getInt("id");
-		Log.e("mMessageId=", mMessageId + "");
-		// mMessageData = db().select(mMessageId);
-
+		mListMessages = (OList) mView.findViewById(R.id.lstMessageDetail);
+		mModel = new MailMessage(getActivity());
 		switch (mType) {
 		case inbox:
-			OControls.setVisible(mView, R.id.odooFormMessagesDetail);
-			mForm = (OForm) mView.findViewById(R.id.odooFormMessagesDetail);
-			mModel = new MailMessage(getActivity());
+			// oList.setOnViewClickListener(R.id.imgBtnStar, this);
 			if (mId != null) {
-				mRecord = mModel.select(mId, mLocalRecord);
+				mRecord = mModel.select("id = ?", new Object[] { mId });
 				int count = mModel.count("parent_id = ?", new String[] { mId
 						+ "" });
-
 				Log.e("Record = ", mRecord + "" + count + " " + mId);
-				mForm.initForm(mRecord);
+				mListMessages.initListControl(mRecord);
 			} else {
-				mForm.setModel(mModel);
-
+				// oList.setModel(mModel);
 			}
 			break;
 		case todo:
@@ -95,7 +93,15 @@ public class MessageDetail extends BaseFragment {
 
 			break;
 		case archives:
-
+			if (mId != null) {
+				mRecord = mModel.select("id = ?", new Object[] { mId });
+				int count = mModel.count("parent_id = ?", new String[] { mId
+						+ "" });
+				Log.e("Record = ", mRecord + "" + count + " " + mId);
+				mListMessages.initListControl(mRecord);
+			} else {
+				// oList.setModel(mModel);
+			}
 			break;
 		case outbox:
 
@@ -120,12 +126,18 @@ public class MessageDetail extends BaseFragment {
 	}
 
 	private void initArgs() {
+
 		Bundle args = getArguments();
-		Log.e("Args", args + "");
 		mType = Message.MType.valueOf(args.getString("key"));
 		if (args.containsKey("id")) {
 			Log.e("inside", "id");
 			mLocalRecord = args.getBoolean("local_record");
+			// isFavorite = args.getBoolean("is_favorite");
+			// if (isFavorite)
+			// btnStar.setColorFilter(Color.YELLOW);
+			// else
+			// btnStar.setColorFilter(Color.GRAY);
+
 			if (mLocalRecord) {
 				mId = args.getInt("local_id");
 			} else {
@@ -133,6 +145,7 @@ public class MessageDetail extends BaseFragment {
 			}
 		} else {
 		}
+
 	}
 
 	@Override
@@ -216,6 +229,12 @@ public class MessageDetail extends BaseFragment {
 	@Override
 	public List<DrawerItem> drawerMenus(Context context) {
 		return null;
+	}
+
+	@Override
+	public void onFormViewClick(View view, ODataRow row) {
+		ImageView imgStart = (ImageView) view;
+
 	}
 
 }
