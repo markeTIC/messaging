@@ -5,6 +5,7 @@ import java.util.List;
 
 import odoo.OArguments;
 import odoo.ODomain;
+import odoo.Odoo;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

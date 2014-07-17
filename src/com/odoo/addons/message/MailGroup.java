@@ -138,6 +138,7 @@ public class MailGroup extends BaseFragment implements OnPullListener {
 		mMailFollowerDB = new MailFollowers(context);
 
 		List<DrawerItem> menu = new ArrayList<DrawerItem>();
+		menu.add(new DrawerItem(TAG, "My Groups", true));
 		menu.add(new DrawerItem(TAG, "Groups", count(context, MType.group), 0,
 				getFragment(MType.group)));
 		MailGroup group = new MailGroup();

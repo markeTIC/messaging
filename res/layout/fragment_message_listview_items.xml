@@ -50,21 +50,25 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="left|top"
+            android:gravity="center_vertical"
             android:orientation="horizontal" >
 
             <odoo.controls.OField
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
+                odoo:fieldTextStyle="bold"
+                odoo:field_color="#414141"
                 odoo:field_name="subject"
                 odoo:field_textAppearance="?android:attr/textAppearanceMedium"
+                odoo:singleLine="true"
                 odoo:with_label="false" >
             </odoo.controls.OField>
 
             <odoo.controls.OField
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                odoo:fieldTextStyle="bold"
                 odoo:field_name="date"
                 odoo:field_textAppearance="?android:attr/textAppearanceSmall"
                 odoo:with_label="false" >
@@ -83,24 +87,22 @@
                 android:layout_weight="3"
                 odoo:field_name="body"
                 odoo:field_textAppearance="?android:attr/textAppearanceSmall"
+                odoo:textLines="2"
                 odoo:with_label="false" />
 
-            <!--
-                 <odoo.controls.OField
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="1"
-                odoo:binaryType="image"
-                odoo:defaultImage="@drawable/ic_action_starred"
-                odoo:field_name=""
-                odoo:label_bottom_border_height="0" />
-            -->
+            <ImageView
+                android:id="@+id/imgMessageStarred"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:src="@drawable/ic_action_starred"
+                android:tint="#414141" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="left|top"
+            android:gravity="center_vertical"
             android:orientation="horizontal"
             android:weightSum="2" >
 
@@ -108,7 +110,9 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
-                odoo:field_name="email_from"
+                odoo:fieldTextStyle="bold"
+                odoo:field_color="#414141"
+                odoo:field_name="author_id"
                 odoo:field_textAppearance="?android:attr/textAppearanceSmall"
                 odoo:with_label="false" >
             </odoo.controls.OField>
@@ -126,6 +130,10 @@
             <odoo.controls.OField
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="#0099cc"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                odoo:field_color="#fff"
                 odoo:field_name="type"
                 odoo:field_textAppearance="?android:attr/textAppearanceSmall"
                 odoo:with_label="false" >

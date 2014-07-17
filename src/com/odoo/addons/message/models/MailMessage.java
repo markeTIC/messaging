@@ -47,6 +47,13 @@ public class MailMessage extends OModel {
 	@Override
 	public JSONObject beforeCreateRow(OColumn column, JSONObject original_record) {
 		try {
+			// check for parent id
+			if (column.equals(parent_id)) {
+				JSONArray parent_id = new JSONArray();
+				parent_id.put(original_record.getInt(column.getName()));
+				parent_id.put("Parent");
+				original_record.put(column.getName(), parent_id);
+			}
 			// Check for author and email_from
 			if (column.equals(author_id)) {
 				JSONArray author_id = original_record.getJSONArray(column
