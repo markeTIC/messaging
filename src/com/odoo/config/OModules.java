@@ -29,4 +29,5 @@ public class OModules extends OModulesHelper {
 
 	OModule message = new OModule(Message.class).setDefault();
 	// OModule mailgroup = new OModule(MailGroup.class);
+
 }

@@ -3,7 +3,9 @@ package com.odoo.addons.message;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 import odoo.controls.OList;
+import odoo.controls.OList.OnListRowViewClickListener;
 import odoo.controls.OList.OnRowClickListener;
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +18,9 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SearchView;
 
 import com.odoo.addons.message.models.MailMessage;
 import com.odoo.addons.message.providers.message.MessageProvider;
@@ -31,7 +35,7 @@ import com.openerp.OETouchListener.OnPullListener;
 import com.openerp.R;
 
 public class Message extends BaseFragment implements OnPullListener,
-		OnRowClickListener {
+		OnRowClickListener, OnListRowViewClickListener {
 	public static final String TAG = Message.class.getSimpleName();
 
 	enum MType {
@@ -46,6 +50,7 @@ public class Message extends BaseFragment implements OnPullListener,
 	Integer mSelectedItemPosition = -1;
 	Integer selectedCounter = 0;
 	String mCurrentType = "inbox";
+	SearchView mSerachView = null;
 	View mView = null;
 	ListView mListView = null;
 	OListAdapter mListViewAdapter = null;
@@ -86,6 +91,8 @@ public class Message extends BaseFragment implements OnPullListener,
 	public void init() {
 		Log.d(TAG, "Message->init()");
 		mListControl = (OList) mView.findViewById(R.id.lstMeesages);
+		mListControl
+				.setOnListRowViewClickListener(R.id.img_starred_mlist, this);
 		initData();
 		mTouchListener = scope.main().getTouchAttacher();
 		mTouchListener.setPullableView(mListControl, this);
@@ -98,41 +105,35 @@ public class Message extends BaseFragment implements OnPullListener,
 		if (mSelectedItemPosition > -1) {
 			return;
 		}
+
 		Bundle bundle = getArguments();
 		if (bundle != null) {
 			if (bundle.containsKey("type")) {
 				mCurrentType = bundle.getString("type");
-				Log.e("inside ", mCurrentType);
-				String title = "archives";
-				if (mCurrentType.equals("inbox")) {
-					Log.e("Loader", "inbox");
+				String title = "Archives";
+				if (mCurrentType.equals(MType.inbox.toString())) {
 					mMessageLoader = new MessagesLoader(MType.inbox);
 					mMessageLoader.execute((Void) null);
-					title = "inbox";
-				} else if (mCurrentType.equals("to-me")) {
-					Log.e("Loader", "tome");
-					title = "To-Me";
+					title = "Inbox";
+				} else if (mCurrentType.equals(MType.tome.toString())) {
+					title = "To-me";
 					mMessageLoader = new MessagesLoader(MType.tome);
 					mMessageLoader.execute((Void) null);
-				} else if (mCurrentType.equals("to-do")) {
-					Log.e("Loader", "todo");
-					title = "To-DO";
+				} else if (mCurrentType.equals(MType.todo.toString())) {
+					title = "To-do";
 					mMessageLoader = new MessagesLoader(MType.todo);
 					mMessageLoader.execute((Void) null);
-				} else if (mCurrentType.equals("archives")) {
-					Log.e("Loader", "archive");
+				} else if (mCurrentType.equals(MType.archives.toString())) {
 					mMessageLoader = new MessagesLoader(MType.archives);
 					mMessageLoader.execute((Void) null);
 				}
 				scope.main().setTitle(title);
 			} else {
 				if (bundle.containsKey("group_id")) {
-					Log.e("Loader", "Group Id");
 					mGroupId = bundle.getInt("group_id");
 					mMessageLoader = new MessagesLoader(MType.group);
 					mMessageLoader.execute((Void) null);
 				} else {
-					Log.e("Loader", "inbox else");
 					scope.main().setTitle("inbox");
 					mMessageLoader = new MessagesLoader(MType.inbox);
 					mMessageLoader.execute((Void) null);
@@ -154,14 +155,15 @@ public class Message extends BaseFragment implements OnPullListener,
 		menu.add(new DrawerItem(TAG, "Message", true));
 		menu.add(new DrawerItem(TAG, "Inbox", count(context, MType.inbox),
 				R.drawable.ic_action_inbox, getFragment(MType.inbox)));
-		menu.add(new DrawerItem(TAG, "To:me", count(context, MType.tome),
+		menu.add(new DrawerItem(TAG, "To-me", count(context, MType.tome),
 				R.drawable.ic_action_user, getFragment(MType.tome)));
 		menu.add(new DrawerItem(TAG, "To-do", count(context, MType.todo),
 				R.drawable.ic_action_todo, getFragment(MType.todo)));
 		menu.add(new DrawerItem(TAG, "Archives",
-				count(context, MType.archives), 0, getFragment(MType.archives)));
+				count(context, MType.archives), R.drawable.ic_action_archive,
+				getFragment(MType.archives)));
 		menu.add(new DrawerItem(TAG, "Outbox", count(context, MType.outbox),
-				R.drawable.ic_action_archive, getFragment(MType.outbox)));
+				R.drawable.ic_action_outbox, getFragment(MType.outbox)));
 		return menu;
 
 	}
@@ -176,6 +178,30 @@ public class Message extends BaseFragment implements OnPullListener,
 
 	private int count(Context context, MType key) {
 		int count = 0;
+		switch (key) {
+		case inbox:
+			count = new MailMessage(context).count(
+					"to_read = ? AND is_favorite = ? AND parent_id = ?",
+					new Object[] { "true", "false", "" });
+			break;
+		case tome:
+			count = new MailMessage(context).count(
+					"res_id = ? AND to_read = ? AND parent_id = ?",
+					new Object[] { "0", "true", "" });
+			break;
+		case todo:
+			count = new MailMessage(context).count(
+					"to_read = ? AND is_favorite = ? AND parent_id = ?",
+					new Object[] { "true", "true", "" });
+			break;
+		case archives:
+			count = new MailMessage(context).count("parent_id = ?",
+					new Object[] { "" });
+			break;
+
+		default:
+			break;
+		}
 		return count;
 	}
 
@@ -183,6 +209,7 @@ public class Message extends BaseFragment implements OnPullListener,
 			android.view.MenuInflater inflater) {
 		menu.clear();
 		inflater.inflate(R.menu.menu_message, menu);
+		// mSerachView = (SearchView) menu.findItem(R.id.menu_message_search);
 	};
 
 	@Override
@@ -224,9 +251,7 @@ public class Message extends BaseFragment implements OnPullListener,
 			Log.e("Pullable", "complete");
 			mTouchListener.setPullComplete();
 			scope.main().refreshDrawer(TAG);
-			mListViewAdapter.clear();
 			mMessageObjects.clear();
-			// mListViewAdapter.notifiyDataChange(mMessageObjects);
 		}
 	};
 
@@ -236,20 +261,27 @@ public class Message extends BaseFragment implements OnPullListener,
 		String[] whereArgs = null;
 		switch (type) {
 		case inbox:
-			where = "to_read = ? AND is_favorite = ?";
-			whereArgs = new String[] { "true", "false" };
+			where = "to_read = ? AND is_favorite = ? AND parent_id = ?";
+			whereArgs = new String[] { "true", "false", "" };
 			break;
 		case tome:
-			where = "res_id = ? AND to_read = ?";
-			whereArgs = new String[] { "0", "true" };
+			where = "res_id = ? AND to_read = ? AND parent_id = ?";
+			whereArgs = new String[] { "0", "true", "" };
 			break;
 		case todo:
-			where = "to_read = ? AND is_favorite = ?";
-			whereArgs = new String[] { "true", "true" };
+			where = "to_read = ? AND is_favorite = ? AND parent_id = ?";
+			whereArgs = new String[] { "true", "true", "" };
 			break;
-		case outbox:
+		case archives:
+			where = "parent_id = ?";
+			whereArgs = new String[] { "" };
+			break;
+		case group:
 			where = "res_id = ? AND model = ?";
 			whereArgs = new String[] { mGroupId + "", "mail.group" };
+			break;
+		case outbox:
+
 			break;
 		default:
 			where = null;
@@ -289,6 +321,9 @@ public class Message extends BaseFragment implements OnPullListener,
 					switch (mType) {
 					case inbox:
 						mListRecords.addAll(db().select(where, whereArgs));
+						// ,null,null,"local_write_date"));
+						// for (ODataRow row : mListRecords)
+						// OLog.log(row.getString("is_favorite"));
 						break;
 					case todo:
 						mListRecords.addAll(db().select(where, whereArgs));
@@ -356,5 +391,15 @@ public class Message extends BaseFragment implements OnPullListener,
 		bundle.putAll(row.getPrimaryBundleData());
 		mDetail.setArguments(bundle);
 		startFragment(mDetail, true);
+	}
+
+	@Override
+	public void onRowViewClick(ViewGroup view_group, View view, int position,
+			ODataRow row) {
+		if (view.getId() == R.id.img_starred_mlist) {
+			ImageView imgStarred = (ImageView) view;
+			imgStarred.setImageResource(R.drawable.ic_launcher);
+		}
+
 	}
 }

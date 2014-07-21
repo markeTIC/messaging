@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:padding="10dp"
     odoo:background_selector="@drawable/oe_listview_background_selector"
     odoo:model="mail.message" >
 
@@ -105,21 +106,14 @@
             </odoo.controls.OField>
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/txvChilds"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="0.5"
-            android:gravity="bottom|right"
-            android:text="Reply" />
-
         <ImageView
             android:id="@+id/imgVotenb"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_gravity="right"
-            android:layout_weight="1"
+            android:layout_weight="0.3"
             android:contentDescription="ImgVotenb"
+            android:paddingRight="5dp"
             android:src="@drawable/ic_thumbs_up_unselected_dark_tablet"
             android:tint="#000000" />
     </LinearLayout>

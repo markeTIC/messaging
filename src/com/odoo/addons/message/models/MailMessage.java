@@ -4,12 +4,15 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.odoo.base.ir.IrAttachment;
 import com.odoo.base.res.ResPartner;
 import com.odoo.orm.OColumn;
 import com.odoo.orm.OColumn.RelationType;
+import com.odoo.orm.ODataRow;
 import com.odoo.orm.OModel;
+import com.odoo.orm.annotations.Odoo;
 import com.odoo.orm.types.OBoolean;
 import com.odoo.orm.types.ODateTime;
 import com.odoo.orm.types.OInteger;
@@ -25,7 +28,7 @@ public class MailMessage extends OModel {
 	OColumn body = new OColumn("body", OText.class);
 	OColumn email_from = new OColumn("email_from", OText.class);
 	OColumn parent_id = new OColumn("parent_id", MailMessage.class,
-			RelationType.ManyToOne);
+			RelationType.ManyToOne).setDefault("");
 	OColumn record_name = new OColumn("record_name", OText.class);
 	OColumn to_read = new OColumn("to_read", OBoolean.class);
 	OColumn author_id = new OColumn("author_id", ResPartner.class,
@@ -40,13 +43,47 @@ public class MailMessage extends OModel {
 	OColumn attachment_ids = new OColumn("attachment_ids", IrAttachment.class,
 			RelationType.ManyToMany);
 
+	// Functional Fields
+	@Odoo.Functional(method = "getMessageTitle")
+	OColumn message_title = new OColumn("Title");
+	@Odoo.Functional(method = "getChildCount")
+	OColumn childs_count = new OColumn("Childs");
+
 	public MailMessage(Context context) {
 		super(context, "mail.message");
+	}
+
+	public String getMessageTitle(ODataRow row) {
+		String title = "false";
+		if (!row.getString("record_name").equals("false"))
+			title = row.getString("record_name");
+		if (title.equals("false") && !row.getString("subject").equals("false"))
+			title = row.getString("subject");
+		if (title.equals("false"))
+			title = "comment";
+		return title;
+	}
+
+	public String getChildCount(ODataRow row) {
+		String total = "";
+		int count = count("parent_id = ?", new Object[] { row.getInt("id") });
+		if (count > 0) {
+			total = count + " replies";
+		}
+		return total;
 	}
 
 	@Override
 	public JSONObject beforeCreateRow(OColumn column, JSONObject original_record) {
 		try {
+			// check for parent id
+			if (column.equals(parent_id)
+					&& original_record.get(column.getName()) instanceof Integer) {
+				JSONArray parent_id = new JSONArray();
+				parent_id.put(original_record.getInt(column.getName()));
+				parent_id.put("Parent");
+				original_record.put(column.getName(), parent_id);
+			}
 			// Check for author and email_from
 			if (column.equals(author_id)) {
 				JSONArray author_id = original_record.getJSONArray(column

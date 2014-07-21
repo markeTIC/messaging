@@ -11,7 +11,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -24,10 +23,8 @@ import android.widget.Toast;
 import com.odoo.App;
 import com.odoo.addons.message.Message.MType;
 import com.odoo.addons.message.models.MailGroupDB;
-import com.odoo.addons.message.models.MailMessage;
 import com.odoo.addons.message.providers.groups.MailGroupProvider;
 import com.odoo.base.mail.MailFollowers;
-import com.odoo.orm.ODataRow;
 import com.odoo.orm.OSyncHelper;
 import com.odoo.support.AppScope;
 import com.odoo.support.BaseFragment;
@@ -148,7 +145,7 @@ public class MailGroup extends BaseFragment implements OnPullListener {
 		// menu.add(new DrawerItem(TAG, "My Groups", true));
 
 		// Join Group
-		//group.setArguments(bundle);
+		// group.setArguments(bundle);
 		// menu.add(new DrawerItem(TAG, "Join Group", 0,
 		// R.drawable.ic_action_social_group, group));
 
@@ -173,8 +170,8 @@ public class MailGroup extends BaseFragment implements OnPullListener {
 		// "to_read = ? AND model = ? AND res_id = ?",
 		// new String[] { "true", db().getModelName(),
 		// row.getString("id") });
-				//menu.add(new DrawerItem(TAG, grp.getString("name"), count,
-					//	mTagColors[index], message));
+		// menu.add(new DrawerItem(TAG, grp.getString("name"), count,
+		// mTagColors[index], message));
 		// grp.put("tag_color", Color.parseColor(mTagColors[index]));
 		// mMenuGroups.put("group_" + grp.getInt("id"), grp);
 		// index++;
