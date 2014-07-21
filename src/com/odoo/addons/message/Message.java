@@ -2,14 +2,17 @@ package com.odoo.addons.message;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import odoo.controls.OList;
+import odoo.controls.OList.BeforeListRowCreateListener;
 import odoo.controls.OList.OnListRowViewClickListener;
 import odoo.controls.OList.OnRowClickListener;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -19,23 +22,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.SearchView;
 
 import com.odoo.addons.message.models.MailMessage;
 import com.odoo.addons.message.providers.message.MessageProvider;
 import com.odoo.orm.ODataRow;
+import com.odoo.orm.OValues;
 import com.odoo.receivers.SyncFinishReceiver;
 import com.odoo.support.AppScope;
 import com.odoo.support.BaseFragment;
-import com.odoo.support.listview.OListAdapter;
 import com.odoo.util.drawer.DrawerItem;
 import com.openerp.OETouchListener;
 import com.openerp.OETouchListener.OnPullListener;
 import com.openerp.R;
 
 public class Message extends BaseFragment implements OnPullListener,
-		OnRowClickListener, OnListRowViewClickListener {
+		OnRowClickListener, OnListRowViewClickListener,
+		BeforeListRowCreateListener {
 	public static final String TAG = Message.class.getSimpleName();
 
 	enum MType {
@@ -45,16 +48,11 @@ public class Message extends BaseFragment implements OnPullListener,
 	OList mListControl = null;
 	List<ODataRow> mListRecords = new ArrayList<ODataRow>();
 
-	Integer mRecentSwiped = -1;
 	Integer mGroupId = null;
-	Integer mSelectedItemPosition = -1;
 	Integer selectedCounter = 0;
 	String mCurrentType = "inbox";
 	SearchView mSerachView = null;
 	View mView = null;
-	ListView mListView = null;
-	OListAdapter mListViewAdapter = null;
-	List<Object> mMessageObjects = new ArrayList<Object>();
 	OETouchListener mTouchListener = null;
 	MType mType = MType.inbox;
 
@@ -72,8 +70,6 @@ public class Message extends BaseFragment implements OnPullListener,
 			R.drawable.message_listview_bg_toread_selector,
 			R.drawable.message_listview_bg_tonotread_selector };
 
-	int[] starred_drawables = new int[] { R.drawable.ic_action_starred,
-			R.drawable.ic_action_unstarred };
 	String tag_colors[] = new String[] { "#A4C400", "#00ABA9", "#1BA1E2",
 			"#AA00FF", "#D80073", "#A20025", "#FA6800", "#6D8764", "#76608A",
 			"#EBB035" };
@@ -97,15 +93,12 @@ public class Message extends BaseFragment implements OnPullListener,
 		mTouchListener = scope.main().getTouchAttacher();
 		mTouchListener.setPullableView(mListControl, this);
 		mListControl.setOnRowClickListener(this);
+		mListControl.setBeforeListRowCreateListener(this);
 
 	}
 
 	private void initData() {
 		Log.d(TAG, "Message->initData()");
-		if (mSelectedItemPosition > -1) {
-			return;
-		}
-
 		Bundle bundle = getArguments();
 		if (bundle != null) {
 			if (bundle.containsKey("type")) {
@@ -181,22 +174,21 @@ public class Message extends BaseFragment implements OnPullListener,
 		switch (key) {
 		case inbox:
 			count = new MailMessage(context).count(
-					"to_read = ? AND is_favorite = ? AND parent_id = ?",
-					new Object[] { "true", "false", "" });
+					"to_read = ? AND is_favorite = ?", new Object[] { "true",
+							"false" });
 			break;
 		case tome:
-			count = new MailMessage(context).count(
-					"res_id = ? AND to_read = ? AND parent_id = ?",
-					new Object[] { "0", "true", "" });
+			count = new MailMessage(context).count("to_read = ?",
+					new Object[] { "true" });
 			break;
 		case todo:
 			count = new MailMessage(context).count(
-					"to_read = ? AND is_favorite = ? AND parent_id = ?",
-					new Object[] { "true", "true", "" });
+					"to_read = ? AND is_favorite = ?", new Object[] { "true",
+							"true" });
 			break;
-		case archives:
-			count = new MailMessage(context).count("parent_id = ?",
-					new Object[] { "" });
+		case outbox:
+			count = new MailMessage(context).count("id = ?",
+					new Object[] { "false" });
 			break;
 
 		default:
@@ -251,7 +243,11 @@ public class Message extends BaseFragment implements OnPullListener,
 			Log.e("Pullable", "complete");
 			mTouchListener.setPullComplete();
 			scope.main().refreshDrawer(TAG);
-			mMessageObjects.clear();
+			mListRecords.clear();
+			if (mMessageLoader != null)
+				mMessageLoader.cancel(true);
+			mMessageLoader = new MessagesLoader(mType);
+			mMessageLoader.execute();
 		}
 	};
 
@@ -261,27 +257,24 @@ public class Message extends BaseFragment implements OnPullListener,
 		String[] whereArgs = null;
 		switch (type) {
 		case inbox:
-			where = "to_read = ? AND is_favorite = ? AND parent_id = ?";
-			whereArgs = new String[] { "true", "false", "" };
+			where = "to_read = ? AND is_favorite = ?";
+			whereArgs = new String[] { "true", "false" };
 			break;
 		case tome:
-			where = "res_id = ? AND to_read = ? AND parent_id = ?";
-			whereArgs = new String[] { "0", "true", "" };
+			where = "to_read = ?";
+			whereArgs = new String[] { "true" };
 			break;
 		case todo:
-			where = "to_read = ? AND is_favorite = ? AND parent_id = ?";
-			whereArgs = new String[] { "true", "true", "" };
-			break;
-		case archives:
-			where = "parent_id = ?";
-			whereArgs = new String[] { "" };
+			where = "to_read = ? AND is_favorite = ?";
+			whereArgs = new String[] { "true", "true" };
 			break;
 		case group:
 			where = "res_id = ? AND model = ?";
 			whereArgs = new String[] { mGroupId + "", "mail.group" };
 			break;
 		case outbox:
-
+			where = "id = ?";
+			whereArgs = new String[] { "false" };
 			break;
 		default:
 			where = null;
@@ -299,6 +292,7 @@ public class Message extends BaseFragment implements OnPullListener,
 
 		public MessagesLoader(MType type) {
 			messageType = type;
+			mType = type;
 			mView.findViewById(R.id.loadingProgress)
 					.setVisibility(View.VISIBLE);
 		}
@@ -313,33 +307,36 @@ public class Message extends BaseFragment implements OnPullListener,
 						scope.main().requestSync(MessageProvider.AUTHORITY);
 					}
 					mListRecords.clear();
-					mMessageObjects.clear();
+					LinkedHashMap<String, ODataRow> mParentList = new LinkedHashMap<String, ODataRow>();
 					HashMap<String, Object> map = getWhere(messageType);
 					String where = (String) map.get("where");
 					String whereArgs[] = (String[]) map.get("whereArgs");
-					mType = messageType;
-					switch (mType) {
-					case inbox:
-						mListRecords.addAll(db().select(where, whereArgs));
-						// ,null,null,"local_write_date"));
-						// for (ODataRow row : mListRecords)
-						// OLog.log(row.getString("is_favorite"));
-						break;
-					case todo:
-						mListRecords.addAll(db().select(where, whereArgs));
-						break;
-					case tome:
-						mListRecords.addAll(db().select(where, whereArgs));
-						break;
-					case archives:
-						mListRecords.addAll(db().select(where, whereArgs));
-						break;
-					case outbox:
-						mListRecords.addAll(db().select(where, whereArgs));
-						break;
-					default:
-						break;
+					for (ODataRow row : db().select(where, whereArgs, null,
+							null, "date DESC")) {
+						ODataRow parent = row.getM2ORecord("parent_id")
+								.browse();
+						if (parent != null) {
+							// Child
+							if (!mParentList.containsKey("key_"
+									+ parent.getString("id"))) {
+								parent.put("body", row.getString("body"));
+								parent.put("date", row.getString("date"));
+								parent.put("to_read", row.getBoolean("to_read"));
+								mParentList.put(
+										"key_" + parent.getString("id"), parent);
+							}
+						} else {
+							if (!mParentList.containsKey("key_"
+									+ row.getString("id"))) {
+								mParentList.put("key_" + row.getString("id"),
+										row);
+							}
+						}
 					}
+					for (String k : mParentList.keySet()) {
+						mListRecords.add(mParentList.get(k));
+					}
+
 				}
 			});
 			return true;
@@ -398,8 +395,29 @@ public class Message extends BaseFragment implements OnPullListener,
 			ODataRow row) {
 		if (view.getId() == R.id.img_starred_mlist) {
 			ImageView imgStarred = (ImageView) view;
-			imgStarred.setImageResource(R.drawable.ic_launcher);
+			boolean is_fav = row.getBoolean("is_favorite");
+			imgStarred.setColorFilter((!is_fav) ? Color.parseColor("#FF8800")
+					: Color.parseColor("#aaaaaa"));
+			OValues values = new OValues();
+			values.put("is_favorite", !is_fav);
+			db().update(values, row.getInt("id"));
+			row.put("is_favorite", !is_fav);
+			mListRecords.remove(position);
+			mListRecords.add(position, row);
 		}
 
+	}
+
+	@Override
+	public void beforeListRowCreate(int position, ODataRow row, View view) {
+		ImageView imgStarred = (ImageView) view
+				.findViewById(R.id.img_starred_mlist);
+		boolean is_fav = row.getBoolean("is_favorite");
+		imgStarred.setColorFilter((is_fav) ? Color.parseColor("#FF8800")
+				: Color.parseColor("#aaaaaa"));
+
+		// Check for to_read selector
+		boolean to_read = row.getBoolean("to_read");
+		view.setBackgroundResource(background_resources[(to_read) ? 1 : 0]);
 	}
 }

@@ -4,7 +4,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.odoo.base.ir.IrAttachment;
 import com.odoo.base.res.ResPartner;
@@ -15,6 +14,7 @@ import com.odoo.orm.OModel;
 import com.odoo.orm.annotations.Odoo;
 import com.odoo.orm.types.OBoolean;
 import com.odoo.orm.types.ODateTime;
+import com.odoo.orm.types.OHtml;
 import com.odoo.orm.types.OInteger;
 import com.odoo.orm.types.OText;
 import com.odoo.orm.types.OVarchar;
@@ -25,10 +25,10 @@ public class MailMessage extends OModel {
 
 	OColumn subject = new OColumn("subject", OText.class);
 	OColumn type = new OColumn("type", OVarchar.class, 30);
-	OColumn body = new OColumn("body", OText.class);
+	OColumn body = new OColumn("body", OHtml.class);
 	OColumn email_from = new OColumn("email_from", OText.class);
 	OColumn parent_id = new OColumn("parent_id", MailMessage.class,
-			RelationType.ManyToOne).setDefault("");
+			RelationType.ManyToOne);
 	OColumn record_name = new OColumn("record_name", OText.class);
 	OColumn to_read = new OColumn("to_read", OBoolean.class);
 	OColumn author_id = new OColumn("author_id", ResPartner.class,
@@ -48,6 +48,8 @@ public class MailMessage extends OModel {
 	OColumn message_title = new OColumn("Title");
 	@Odoo.Functional(method = "getChildCount")
 	OColumn childs_count = new OColumn("Childs");
+	@Odoo.Functional(method = "getAuthorName")
+	OColumn author_name = new OColumn("Author", OVarchar.class);
 
 	public MailMessage(Context context) {
 		super(context, "mail.message");
@@ -71,6 +73,15 @@ public class MailMessage extends OModel {
 			total = count + " replies";
 		}
 		return total;
+	}
+
+	public String getAuthorName(ODataRow row) {
+		String author_name = row.getString("email_from");
+		if (author_name.equals("false")) {
+			author_name = row.getM2ORecord("author_id").browse()
+					.getString("name");
+		}
+		return author_name;
 	}
 
 	@Override
