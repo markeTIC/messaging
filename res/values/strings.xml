@@ -31,5 +31,9 @@ When you process messages in your inbox, you can mark some as todo. From this me
     <string name="note_menu_title_speech_to_text">Speech to text</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="send_now">Send Now</string>
+    <string name="add_attachment">Add Attachment</string>
+    <string name="add_image">Add Image</string>
+    <string name="add_file">Add File</string>
 
 </resources>

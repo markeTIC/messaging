@@ -5,12 +5,14 @@ import java.util.List;
 
 import odoo.controls.OForm.OnViewClickListener;
 import odoo.controls.OList;
+import odoo.controls.OList.BeforeListRowCreateListener;
 import odoo.controls.OList.OnListRowViewClickListener;
 
 import org.json.JSONArray;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.odoo.addons.message.Message.MType;
@@ -31,10 +34,12 @@ import com.odoo.orm.OValues;
 import com.odoo.support.BaseFragment;
 import com.odoo.util.drawer.DrawerItem;
 import com.odoo.util.drawer.DrawerListener;
+import com.odoo.util.logger.OLog;
 import com.openerp.R;
 
 public class MessageDetail extends BaseFragment implements OnViewClickListener,
-		OnListRowViewClickListener {
+		OnListRowViewClickListener, BeforeListRowCreateListener {
+
 	public static final String TAG = "com.odoo.addons.message.MessageDetail";
 
 	private View mView = null;
@@ -43,7 +48,6 @@ public class MessageDetail extends BaseFragment implements OnViewClickListener,
 	private Boolean mLocalRecord = false;
 	private OList mListMessages = null;
 	private List<ODataRow> mRecord = null;
-	// /private Menu mMenu = null;
 	MailMessage mail = null;
 	Integer mMessageId = null;
 	ODataRow mMessageData = null;
@@ -51,7 +55,7 @@ public class MessageDetail extends BaseFragment implements OnViewClickListener,
 	List<Object> mMessageObjects = new ArrayList<Object>();
 	ImageView btnStar;
 	boolean isFavorite = false;
-
+	TextView subject;
 	Integer[] mStarredDrawables = new Integer[] { R.drawable.ic_action_starred,
 			R.drawable.ic_action_unstarred };
 
@@ -62,6 +66,7 @@ public class MessageDetail extends BaseFragment implements OnViewClickListener,
 		setHasOptionsMenu(true);
 		mView = inflater.inflate(R.layout.message_detail_layout, container,
 				false);
+
 		initArgs();
 		return mView;
 	}
@@ -74,30 +79,21 @@ public class MessageDetail extends BaseFragment implements OnViewClickListener,
 
 	private void init() {
 		mListMessages = (OList) mView.findViewById(R.id.lstMessageDetail);
+		subject = (TextView) mView.findViewById(R.id.subject);
+		subject.setText(getArguments().getString("subject"));
 		mail = new MailMessage(getActivity());
 		mListMessages.setOnListRowViewClickListener(R.id.imgBtnStar, this);
+		mListMessages.setOnListRowViewClickListener(R.id.imgBtnReply, this);
+
+		mListMessages.setBeforeListRowCreateListener(this);
 		switch (mType) {
 		case inbox:
 			if (mId != null) {
-				// mRecord = mail.select("id = ? OR parent_id = ? ", new
-				// Object[] { mId, mId });
 				mRecord = mail.select("id = ? OR parent_id = ?", new Object[] {
-						mId, mId }, null, null, "local_write_date");
-				// for (ODataRow row : mRecord) {
-				// OLog.log(row.getString("is_favorite"));
-				// }
-				// Check for isFavorite and Set color of The ImageView
-				// (imgBtnStar) Here
-				// if (isFavorite.equals("true"))
-				// btnStar.setColorFilter(Color.YELLOW);
-				// else
-				// btnStar.setColorFilter(Color.GRAY);
+						mId, mId });
 
-				int count = mail.count("parent_id = ?",
-						new String[] { mId + "" });
 				mListMessages.initListControl(mRecord);
 			} else {
-				// oList.setModel(mModel);
 			}
 			break;
 		case tome:
@@ -134,15 +130,12 @@ public class MessageDetail extends BaseFragment implements OnViewClickListener,
 		default:
 			break;
 		}
-		// mListMessages.setOnListRowViewClickListener(R.id.imgBtnStar,
-		// (OnListRowViewClickListener) this);
 	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		menu.clear();
 		inflater.inflate(R.menu.menu_message_detail, menu);
-		// mMenu = menu;
 
 	}
 
@@ -152,17 +145,10 @@ public class MessageDetail extends BaseFragment implements OnViewClickListener,
 	}
 
 	private void initArgs() {
-		// btnStar = (ImageView) mView.findViewById(R.id.imgBtnStar);
 		Bundle args = getArguments();
 		mType = Message.MType.valueOf(args.getString("key"));
 		if (args.containsKey("id")) {
 			mLocalRecord = args.getBoolean("local_record");
-			// isFavorite = args.getBoolean("is_favorite");
-			// if (isFavorite)
-			// btnStar.setColorFilter(Color.YELLOW);
-			// else
-			// btnStar.setColorFilter(Color.GRAY);
-
 			if (mLocalRecord) {
 				mId = args.getInt("local_id");
 			} else {
@@ -175,7 +161,6 @@ public class MessageDetail extends BaseFragment implements OnViewClickListener,
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		OValues values = new OValues();
 		switch (item.getItemId()) {
 		case R.id.menu_message_read:
 			// values.put("to_read", "true/false");
@@ -232,10 +217,6 @@ public class MessageDetail extends BaseFragment implements OnViewClickListener,
 					new String[] { parent_id + "" })) {
 				ids.put(child.getInt("id"));
 			}
-			// if (toggleReadUnread(mOE, ids, default_model, res_id, parent_id,
-			// mToRead)) {
-			// flag = true;
-			// }
 
 			return flag;
 		}
@@ -261,23 +242,40 @@ public class MessageDetail extends BaseFragment implements OnViewClickListener,
 
 	@Override
 	public void onFormViewClick(View view, ODataRow row) {
-		ImageView imgStart = (ImageView) view;
-
 	}
 
 	@Override
 	public void onRowViewClick(ViewGroup view_group, View view, int position,
 			ODataRow row) {
-		String is_favorite = "";
-		if (view.getId() == R.id.imgBtnStar) {
-			ImageView imgstar = (ImageView) view;
-			is_favorite = row.getString("is_favorite");
-			if (is_favorite.equals("true"))
-				imgstar.setColorFilter(Color.YELLOW);
-			else
-				imgstar.setColorFilter(Color.GRAY);
+		MailMessage mail = new MailMessage(getActivity());
 
+		if (view.getId() == R.id.imgBtnStar) {
+			ImageView imgStarred = (ImageView) view;
+			boolean is_fav = row.getBoolean("is_favorite");
+			imgStarred.setColorFilter((!is_fav) ? Color.parseColor("#FF8800")
+					: Color.parseColor("#aaaaaa"));
+			OValues values = new OValues();
+			values.put("is_favorite", !is_fav);
+			mail.update(values, row.getInt("id"));
+			row.put("is_favorite", !is_fav);
+			mRecord.remove(position);
+			mRecord.add(position, row);
+		} else if (view.getId() == R.id.imgBtnReply) {
+			Intent i = new Intent(getActivity(), MessageComposeActivity.class);
+			i.putExtra("name", "nilesh");
+			startActivity(i);
+		} else if (view.getId() == R.id.imgVotenb) {
+			Toast.makeText(getActivity(), "Voted", Toast.LENGTH_SHORT).show();
 		}
+	}
+
+	@Override
+	public void beforeListRowCreate(int position, ODataRow row, View view) {
+
+		ImageView imgstar = (ImageView) view.findViewById(R.id.imgBtnStar);
+		boolean is_favorite = row.getBoolean("is_favorite");
+		imgstar.setColorFilter((is_favorite) ? Color.parseColor("#FF8800")
+				: Color.parseColor("#aaaaaa"));
 
 	}
 

@@ -22,7 +22,8 @@ import com.odoo.orm.types.OVarchar;
 public class MailMessage extends OModel {
 	OColumn partner_ids = new OColumn("partner_ids", ResPartner.class,
 			RelationType.ManyToMany);
-
+	OColumn notification_ids = new OColumn("Notification_id",
+			MailNotification.class, RelationType.OneToMany).setLocalColumn();
 	OColumn subject = new OColumn("subject", OText.class);
 	OColumn type = new OColumn("type", OVarchar.class, 30);
 	OColumn body = new OColumn("body", OHtml.class);

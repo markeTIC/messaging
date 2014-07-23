@@ -32,6 +32,7 @@ import com.odoo.receivers.SyncFinishReceiver;
 import com.odoo.support.AppScope;
 import com.odoo.support.BaseFragment;
 import com.odoo.util.drawer.DrawerItem;
+import com.odoo.util.logger.OLog;
 import com.openerp.OETouchListener;
 import com.openerp.OETouchListener.OnPullListener;
 import com.openerp.R;
@@ -315,6 +316,7 @@ public class Message extends BaseFragment implements OnPullListener,
 							null, "date DESC")) {
 						ODataRow parent = row.getM2ORecord("parent_id")
 								.browse();
+
 						if (parent != null) {
 							// Child
 							if (!mParentList.containsKey("key_"
@@ -324,8 +326,9 @@ public class Message extends BaseFragment implements OnPullListener,
 								parent.put("to_read", row.getBoolean("to_read"));
 								mParentList.put(
 										"key_" + parent.getString("id"), parent);
+
 							}
-						} else {
+						} else { // parent
 							if (!mParentList.containsKey("key_"
 									+ row.getString("id"))) {
 								mParentList.put("key_" + row.getString("id"),
@@ -382,10 +385,19 @@ public class Message extends BaseFragment implements OnPullListener,
 
 	@Override
 	public void onRowItemClick(int position, View view, ODataRow row) {
+		String title = "false";
 		MessageDetail mDetail = new MessageDetail();
 		Bundle bundle = new Bundle();
 		bundle.putString("key", mCurrentType.toString());
 		bundle.putAll(row.getPrimaryBundleData());
+		if (!row.getString("record_name").equals("false"))
+			title = row.getString("record_name");
+		if (title.equals("false") && !row.getString("subject").equals("false"))
+			title = row.getString("subject");
+		if (title.equals("false"))
+			title = "comment";
+		OLog.log("title = " + title);
+		bundle.putString("subject", title);
 		mDetail.setArguments(bundle);
 		startFragment(mDetail, true);
 	}
@@ -393,6 +405,7 @@ public class Message extends BaseFragment implements OnPullListener,
 	@Override
 	public void onRowViewClick(ViewGroup view_group, View view, int position,
 			ODataRow row) {
+		MailMessage mail = new MailMessage(getActivity());
 		if (view.getId() == R.id.img_starred_mlist) {
 			ImageView imgStarred = (ImageView) view;
 			boolean is_fav = row.getBoolean("is_favorite");
@@ -400,7 +413,7 @@ public class Message extends BaseFragment implements OnPullListener,
 					: Color.parseColor("#aaaaaa"));
 			OValues values = new OValues();
 			values.put("is_favorite", !is_fav);
-			db().update(values, row.getInt("id"));
+			mail.update(values, row.getInt("id"));
 			row.put("is_favorite", !is_fav);
 			mListRecords.remove(position);
 			mListRecords.add(position, row);

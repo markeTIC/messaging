@@ -144,7 +144,7 @@ public class MessageSyncService extends OService {
 				ids_array.put(id);
 			JSONObject fields = new JSONObject();
 
-			fields.accumulate("fields", "read");
+			fields.accumulate("fields", "is_read");
 			fields.accumulate("fields", "starred");
 			fields.accumulate("fields", "partner_id");
 			fields.accumulate("fields", "message_id");
@@ -158,7 +158,7 @@ public class MessageSyncService extends OService {
 				JSONObject objRes = result.getJSONArray("records")
 						.getJSONObject(j);
 				int message_id = objRes.getJSONArray("message_id").getInt(0);
-				boolean read = objRes.getBoolean("read");
+				boolean read = objRes.getBoolean("is_read");
 				boolean starred = objRes.getBoolean("starred");
 				OValues values = new OValues();
 				values.put("starred", starred);
